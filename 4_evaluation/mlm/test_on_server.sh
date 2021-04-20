@@ -2,12 +2,12 @@
 
 #SBATCH --partition=htc
 #SBATCH --time=24:00:00
-#SBATCH --job-name=m-mlm-test
+#SBATCH --job-name=17pmlm-test
 #SBATCH --mail-type=ALL
 #SBATCH --mail-user=paul.rottger@oii.ox.ac.uk
-#SBATCH --output=m-mlm-test.out
-#SBATCH --error=m-mlm-test.err
-#SBATCH --gres=gpu:k80:1
+#SBATCH --output=17pmlm-test.out
+#SBATCH --error=17pmlm-test.err
+#SBATCH --gres=gpu:v100:1
 
 # reset modules
 module purge
@@ -24,7 +24,7 @@ nvidia-smi
 #
 
 for modelpath in $DATA/gab-language-change/adapted-models/reddit/month-models/bert-2017*/; do
-    for testpath in $DATA/gab-language-change/0_data/clean/unlabelled_reddit/politics_test/test_2017_*_5k.txt; do
+    for testpath in $DATA/gab-language-change/0_data/clean/unlabelled_reddit/politics_test/test_*_5k.txt; do
 
         echo $(basename $modelpath) $(basename $testpath)
 
