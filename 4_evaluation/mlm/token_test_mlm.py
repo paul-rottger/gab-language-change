@@ -369,17 +369,12 @@ def main():
     trainer = Trainer(
         model=model,
         args=training_args,
-        train_dataset= None,
-        eval_dataset=tokenized_datasets["validation"] if training_args.do_eval else None,,
         tokenizer=tokenizer,
         data_collator=data_collator,
     )
 
     # Commence testing
     logger.info("*** Test ***")
-
-    # Test set is saved as "validation" in dict of tokenized datasets
-    pred_results = trainer.predict(tokenized_datasets["validation"])
 
     # initialise dictionary for writing prediction results to
     out_dict = {"case_id": [], "text": [], "tokenized_text": [],
@@ -388,36 +383,46 @@ def main():
                 "ce_loss": [],
                 "pred_logits": []}
 
-    # each row corresponds to a masked token
-    # first level of iteration is case-by-case
-    for case_id, result, label_ids in zip(range(pred_results.label_ids.shape[0]), pred_results.predictions, pred_results.label_ids):
-            
-        # second level of iteration is over masked tokens in a given case    
-        # not every case necessarily has masked tokens (indicated by label_id not equal to -100)
-        for masked_token in (label_ids != -100).nonzero()[0]:
-            
-            # write case_id, text and tokenized text corresponding to a given masked token
-            out_dict["case_id"].append(case_id)
-            out_dict["text"].append(tokenized_datasets["test"]["text"][case_id])
-            out_dict["tokenized_text"].append((tokenizer.convert_ids_to_tokens(tokenized_datasets["test"]["input_ids"][case_id])))
-            
-            # for each masked token, write out its array id within the text, its vocab id and corresponding text
-            out_dict["masked_token_array_id"].append(masked_token)
-            out_dict["masked_token_vocab_id"].append(label_ids[masked_token])
-            out_dict["masked_token_text"].append(tokenizer.convert_ids_to_tokens([label_ids[masked_token]])[0])
-            
-            # also write the vocab id and text of the top predicted token
-            out_dict["top_pred_token_vocab_id"].append(result[masked_token].argmax())
-            out_dict["top_pred_token_text"].append(tokenizer.convert_ids_to_tokens([result[masked_token].argmax()])[0])
-            
-            # calculate categorical cross entropy loss as the negative log of the softmax probability of the correct token
-            ce_loss = -np.log(softmax(result[masked_token])[label_ids[masked_token]])
-            out_dict["ce_loss"].append(ce_loss)
-            
-            # save full logits (1xvocab_size) for the masked token for flexibility in further analysis
-            out_dict["pred_logits"].append(result[masked_token])
-            
-            
+    # set number of shards for splitting dataset into
+    n_shards=100
+
+    # run prediction on shards of overall test set so as not to exceed RAM
+    for shard_id in range(n_shards):
+        
+        test_shard = tokenized_datasets["validation"].shard(n_shards, shard_id, contiguous=True)
+        pred_results = trainer.predict(test_shard)
+
+        # each row corresponds to a masked token
+        # first level of iteration is case-by-case
+        case_id_range = range(shard_id*int((tokenized_datasets["validation"].shape[0]/n_shards)), (shard_id+1)*int((tokenized_datasets["validation"].shape[0]/n_shards)))
+        
+        for case_id, result, label_ids in zip(case_id_range, pred_results.predictions, pred_results.label_ids):
+
+            # second level of iteration is over masked tokens in a given case    
+            # not every case necessarily has masked tokens (indicated by label_id not equal to -100)
+            for masked_token in (label_ids != -100).nonzero()[0]:
+
+                # write case_id, text and tokenized text corresponding to a given masked token
+                out_dict["case_id"].append(case_id)
+                out_dict["text"].append(tokenized_datasets["validation"]["text"][case_id])
+                out_dict["tokenized_text"].append((tokenizer.convert_ids_to_tokens(tokenized_datasets["validation"]["input_ids"][case_id])))
+
+                # for each masked token, write out its array id within the text, its vocab id and corresponding text
+                out_dict["masked_token_array_id"].append(masked_token)
+                out_dict["masked_token_vocab_id"].append(label_ids[masked_token])
+                out_dict["masked_token_text"].append(tokenizer.convert_ids_to_tokens([label_ids[masked_token]])[0])
+
+                # also write the vocab id and text of the top predicted token
+                out_dict["top_pred_token_vocab_id"].append(result[masked_token].argmax())
+                out_dict["top_pred_token_text"].append(tokenizer.convert_ids_to_tokens([result[masked_token].argmax()])[0])
+
+                # calculate categorical cross entropy loss as the negative log of the softmax probability of the correct token
+                ce_loss = -np.log(softmax(result[masked_token])[label_ids[masked_token]])
+                out_dict["ce_loss"].append(ce_loss)
+
+                # save full logits (1xvocab_size) for the masked token for flexibility in further analysis
+                out_dict["pred_logits"].append(result[masked_token])
+
     # write dataframe from dict    
     out_df = pd.DataFrame.from_dict(out_dict)
 
