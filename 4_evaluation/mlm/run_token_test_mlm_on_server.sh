@@ -34,7 +34,7 @@ for modelpath in $DATA/gab-language-change/adapted-models/reddit/month-models/be
             --use_special_tokens \
             --line_by_line \
             --do_eval \
-            --per_device_eval_batch_size 64 \
+            --per_device_eval_batch_size 128 \
             --output_dir $DATA/gab-language-change/eval-results/mlm/reddit/token-test \
             --output_name $(basename $modelpath)-$(basename $testpath .txt) \
             --overwrite_output_dir \

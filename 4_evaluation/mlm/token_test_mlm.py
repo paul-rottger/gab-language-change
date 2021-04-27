@@ -377,14 +377,14 @@ def main():
     logger.info("*** Test ***")
 
     # initialise dictionary for writing prediction results to
-    out_dict = {"case_id": [], "text": [], "tokenized_text": [],
+    out_dict = {"case_id": [],
                 "masked_token_array_id": [], "masked_token_vocab_id": [], "masked_token_text": [],
                 "top_pred_token_vocab_id": [], "top_pred_token_text": [],
                 "ce_loss": [],
                 "pred_logits": []}
 
     # set number of shards for splitting dataset into
-    n_shards=40
+    n_shards=20
 
     # run prediction on shards of overall test set so as not to exceed RAM
     for shard_id in range(n_shards):
@@ -404,10 +404,8 @@ def main():
             # not every case necessarily has masked tokens (indicated by label_id not equal to -100)
             for masked_token in (label_ids != -100).nonzero()[0]:
 
-                # write case_id, text and tokenized text corresponding to a given masked token
+                # write case_id corresponding to a given masked token. text and tokenized_text can then be merged later
                 out_dict["case_id"].append(case_id)
-                out_dict["text"].append(tokenized_datasets["validation"]["text"][case_id])
-                out_dict["tokenized_text"].append((tokenizer.convert_ids_to_tokens(tokenized_datasets["validation"]["input_ids"][case_id])))
 
                 # for each masked token, write out its array id within the text, its vocab id and corresponding text
                 out_dict["masked_token_array_id"].append(masked_token)
