@@ -11,6 +11,7 @@ import os
 import sys
 import numpy as np
 import pandas as pd
+import torch
 from dataclasses import dataclass, field
 from typing import Optional
 
@@ -371,6 +372,7 @@ def main():
         args=training_args,
         tokenizer=tokenizer,
         data_collator=data_collator,
+        compute_metrics=None
     )
 
     # Commence testing
@@ -389,10 +391,14 @@ def main():
     # run prediction on shards of overall test set so as not to exceed RAM
     for shard_id in range(n_shards):
 
-        logger.info(f"shard {shard_id}")
+        logger.info(f"shard {shard_id}: prediction")
         
         test_shard = tokenized_datasets["validation"].shard(n_shards, shard_id, contiguous=True)
         pred_results = trainer.predict(test_shard)
+
+        del test_shard
+
+        logger.info(f"  writing results to dict")
 
         # each row corresponds to a masked token
         # first level of iteration is case-by-case
@@ -422,6 +428,9 @@ def main():
 
                 # save full logits (1xvocab_size) for the masked token for flexibility in further analysis
                 out_dict["pred_logits"].append(result[masked_token])
+        
+        del pred_results
+        torch.cuda.empty_cache()
 
     # write dataframe from dict    
     out_df = pd.DataFrame.from_dict(out_dict)
