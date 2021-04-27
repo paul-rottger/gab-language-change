@@ -7,7 +7,7 @@
 #SBATCH --mail-user=paul.rottger@oii.ox.ac.uk
 #SBATCH --output=mlm-trial-test.out
 #SBATCH --error=mlm-trial-test.err
-#SBATCH --gres=gpu:v100:1
+#SBATCH --gres=gpu:k80:1
 
 # reset modules
 module purge
@@ -34,7 +34,7 @@ for modelpath in $DATA/gab-language-change/adapted-models/reddit/month-models/be
             --use_special_tokens \
             --line_by_line \
             --do_eval \
-            --per_device_eval_batch_size 256 \
+            --per_device_eval_batch_size 64 \
             --output_dir $DATA/gab-language-change/eval-results/mlm/reddit/token-test \
             --output_name $(basename $modelpath)-$(basename $testpath .txt) \
             --overwrite_output_dir \

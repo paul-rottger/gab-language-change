@@ -384,10 +384,12 @@ def main():
                 "pred_logits": []}
 
     # set number of shards for splitting dataset into
-    n_shards=100
+    n_shards=40
 
     # run prediction on shards of overall test set so as not to exceed RAM
     for shard_id in range(n_shards):
+
+        logger.info(f"shard {shard_id}")
         
         test_shard = tokenized_datasets["validation"].shard(n_shards, shard_id, contiguous=True)
         pred_results = trainer.predict(test_shard)
