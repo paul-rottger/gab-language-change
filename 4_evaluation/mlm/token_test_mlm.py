@@ -11,7 +11,6 @@ import os
 import sys
 import numpy as np
 import pandas as pd
-import torch
 from dataclasses import dataclass, field
 from typing import Optional
 
@@ -366,15 +365,6 @@ def main():
     # This one will take care of randomly masking the tokens.
     data_collator = DataCollatorForLanguageModeling(tokenizer=tokenizer, mlm_probability=data_args.mlm_probability)
 
-    # Initialize our Trainer
-    trainer = Trainer(
-        model=model,
-        args=training_args,
-        tokenizer=tokenizer,
-        data_collator=data_collator,
-        compute_metrics=None
-    )
-
     # Commence testing
     logger.info("*** Test ***")
 
@@ -390,6 +380,15 @@ def main():
 
     # run prediction on shards of overall test set so as not to exceed RAM
     for shard_id in range(n_shards):
+        
+        # Initialize our Trainer
+        trainer = Trainer(
+            model=model,
+            args=training_args,
+            tokenizer=tokenizer,
+            data_collator=data_collator,
+            compute_metrics=None
+        )
 
         logger.info(f"shard {shard_id}: prediction")
         
@@ -397,8 +396,7 @@ def main():
         pred_results = trainer.predict(test_shard)
 
         del test_shard
-
-        logger.info(f"  writing results to dict")
+        del trainer
 
         # each row corresponds to a masked token
         # first level of iteration is case-by-case
@@ -430,7 +428,6 @@ def main():
                 out_dict["pred_logits"].append(result[masked_token])
         
         del pred_results
-        torch.cuda.empty_cache()
 
     # write dataframe from dict    
     out_df = pd.DataFrame.from_dict(out_dict)
