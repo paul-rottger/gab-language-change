@@ -2,11 +2,11 @@
 
 #SBATCH --partition=htc
 #SBATCH --time=24:00:00
-#SBATCH --job-name=17pmlm-test
+#SBATCH --job-name=mlm-trial-test
 #SBATCH --mail-type=ALL
 #SBATCH --mail-user=paul.rottger@oii.ox.ac.uk
-#SBATCH --output=17pmlm-test.out
-#SBATCH --error=17pmlm-test.err
+#SBATCH --output=mlm-trial-test.out
+#SBATCH --error=mlm-trial-test.err
 #SBATCH --gres=gpu:v100:1
 
 # reset modules
@@ -23,19 +23,19 @@ source activate $DATA/conda-envs/gab-language-change
 nvidia-smi
 #
 
-for modelpath in $DATA/gab-language-change/adapted-models/reddit/month-models/bert-2017*/; do
-    for testpath in $DATA/gab-language-change/0_data/clean/unlabelled_reddit/politics_test/test_*_5k.txt; do
+for modelpath in $DATA/gab-language-change/adapted-models/reddit/month-models/bert-2017_1*/; do
+    for testpath in $DATA/gab-language-change/0_data/clean/unlabelled_reddit/politics_test/test_2017_03_5k.txt; do
 
         echo $(basename $modelpath) $(basename $testpath)
 
-        python test_mlm.py \
+        python token_test_mlm.py \
             --model_name_or_path $modelpath \
             --validation_file $testpath \
             --use_special_tokens \
             --line_by_line \
             --do_eval \
             --per_device_eval_batch_size 256 \
-            --output_dir $DATA/gab-language-change/eval-results/mlm/reddit/politics-test \
+            --output_dir $DATA/gab-language-change/eval-results/mlm/reddit/token-test \
             --output_name $(basename $modelpath)-$(basename $testpath .txt) \
             --overwrite_output_dir \
             --dataset_cache_dir $DATA/gab-language-change/z_cache/datasets \
