@@ -365,6 +365,15 @@ def main():
     # This one will take care of randomly masking the tokens.
     data_collator = DataCollatorForLanguageModeling(tokenizer=tokenizer, mlm_probability=data_args.mlm_probability)
 
+    # Initialize our Trainer
+    trainer = Trainer(
+        model=model,
+        args=training_args,
+        tokenizer=tokenizer,
+        data_collator=data_collator,
+        compute_metrics=None
+    )
+
     # Commence testing
     logger.info("*** Test ***")
 
@@ -380,15 +389,6 @@ def main():
 
     # run prediction on shards of overall test set so as not to exceed RAM
     for shard_id in range(n_shards):
-        
-        # Initialize our Trainer
-        trainer = Trainer(
-            model=model,
-            args=training_args,
-            tokenizer=tokenizer,
-            data_collator=data_collator,
-            compute_metrics=None
-        )
 
         logger.info(f"shard {shard_id}: prediction")
         
@@ -396,7 +396,6 @@ def main():
         pred_results = trainer.predict(test_shard)
 
         del test_shard
-        del trainer
 
         # each row corresponds to a masked token
         # first level of iteration is case-by-case
