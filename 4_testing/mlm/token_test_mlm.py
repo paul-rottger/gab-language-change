@@ -11,6 +11,7 @@ import os
 import sys
 import numpy as np
 import pandas as pd
+import time
 from dataclasses import dataclass, field
 from typing import Optional
 
@@ -427,6 +428,7 @@ def main():
                 out_dict["pred_logits"].append(result[masked_token])
         
         del pred_results
+        time.sleep(3)
 
     # write dataframe from dict    
     out_df = pd.DataFrame.from_dict(out_dict)
