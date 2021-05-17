@@ -4,7 +4,7 @@
 #SBATCH --time=24:00:00
 #SBATCH --job-name=scale-pmlm-test
 #SBATCH --mail-type=ALL
-#SBATCH --mail-user=paul.rottger@oii.ox.ac.uk
+#SBATCH --mail-user=XXXX
 #SBATCH --output=scale-pmlm-test.out
 #SBATCH --error=scale-pmlm-test.err
 #SBATCH --gres=gpu:k80:1

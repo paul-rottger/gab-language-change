@@ -4,7 +4,7 @@
 #SBATCH --time=48:00:00
 #SBATCH --job-name=10m-rand-pretrain
 #SBATCH --mail-type=ALL
-#SBATCH --mail-user=paul.rottger@oii.ox.ac.uk
+#SBATCH --mail-user=XXXX
 #SBATCH --output=10m-rand-pretrain.out
 #SBATCH --error=10m-rand-pretrain.err
 #SBATCH --gres=gpu:1 --constraint='gpu_mem:32GB'

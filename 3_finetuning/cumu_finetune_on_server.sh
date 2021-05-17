@@ -4,7 +4,7 @@
 #SBATCH --time=24:00:00
 #SBATCH --job-name=2k-cumu-finetune
 #SBATCH --mail-type=ALL
-#SBATCH --mail-user=paul.rottger@oii.ox.ac.uk
+#SBATCH --mail-user=XXXX
 #SBATCH --output=2k-cumu-finetune.out
 #SBATCH --error=2k-cumu-finetune.err
 #SBATCH --gres=gpu:k80:1

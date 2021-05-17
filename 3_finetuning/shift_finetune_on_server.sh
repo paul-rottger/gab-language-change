@@ -4,7 +4,7 @@
 #SBATCH --time=24:00:00
 #SBATCH --job-name=2ks+1-finetune
 #SBATCH --mail-type=ALL
-#SBATCH --mail-user=paul.rottger@oii.ox.ac.uk
+#SBATCH --mail-user=XXXX
 #SBATCH --output=2ks+1-finetune.out
 #SBATCH --error=2ks+1-finetune.err
 #SBATCH --gres=gpu:k80:1

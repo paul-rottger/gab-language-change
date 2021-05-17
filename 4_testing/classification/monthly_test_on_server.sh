@@ -4,7 +4,7 @@
 #SBATCH --time=24:00:00
 #SBATCH --job-name=2k18s12-test
 #SBATCH --mail-type=ALL
-#SBATCH --mail-user=paul.rottger@oii.ox.ac.uk
+#SBATCH --mail-user=XXXX
 #SBATCH --output=2k18s12-test.out
 #SBATCH --error=2k18s12-test.err
 #SBATCH --gres=gpu:k80:1

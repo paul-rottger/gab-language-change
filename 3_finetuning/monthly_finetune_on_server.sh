@@ -4,7 +4,7 @@
 #SBATCH --time=24:00:00
 #SBATCH --job-name=ada-rand-finetune
 #SBATCH --mail-type=ALL
-#SBATCH --mail-user=paul.rottger@oii.ox.ac.uk
+#SBATCH --mail-user=XXXX
 #SBATCH --output=ada-rand-finetune.out
 #SBATCH --error=ada-rand-finetune.err
 #SBATCH --gres=gpu:k80:1

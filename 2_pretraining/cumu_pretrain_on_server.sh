@@ -4,7 +4,7 @@
 #SBATCH --time=24:00:00
 #SBATCH --job-name=19-cumu-pretrain
 #SBATCH --mail-type=ALL
-#SBATCH --mail-user=paul.rottger@oii.ox.ac.uk
+#SBATCH --mail-user=XXXX
 #SBATCH --output=19-cumu-pretrain.out
 #SBATCH --error=19-cumu-pretrain.err
 #SBATCH --gres=gpu:v100:1
